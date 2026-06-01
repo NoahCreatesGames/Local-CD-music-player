@@ -24,20 +24,22 @@
     justify-content: center;
     align-items: center;
     padding: env(safe-area-inset-top) 16px env(safe-area-inset-bottom);
+    overflow: hidden;
   }
 
   #app {
     width: 100%;
     max-width: 420px;
+    height: 100vh;
     background: #111;
-    overflow: hidden;
     display: flex;
     flex-direction: column;
     align-items: center;
+    justify-content: space-between;
     position: relative;
+    padding: 20px 0;
   }
 
-  /* Landing Screen styling */
   #upload-container {
     display: flex;
     flex-direction: column;
@@ -48,7 +50,7 @@
     border: 2px dashed rgba(255,255,255,0.1);
     border-radius: 20px;
     width: 100%;
-    margin: 20px 0;
+    margin: auto 0;
     background: rgba(255,255,255,0.02);
   }
 
@@ -62,18 +64,13 @@
     background: #a855f7;
     color: white;
     border: none;
-    padding: 12px 24px;
+    padding: 14px 28px;
     border-radius: 30px;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: 600;
     cursor: pointer;
     margin-top: 16px;
     box-shadow: 0 4px 14px rgba(168, 85, 247, 0.4);
-    transition: transform 0.2s;
-  }
-
-  .upload-btn:active {
-    transform: scale(0.96);
   }
 
   #player-interface {
@@ -81,18 +78,19 @@
     width: 100%;
     flex-direction: column;
     align-items: center;
+    flex: 1;
+    justify-content: space-between;
   }
 
   #scene {
     width: 100%;
-    height: 260px;
+    height: 240px;
     position: relative;
-    perspective: 900px;
+    perspective: 1000px;
     cursor: grab;
     user-select: none;
-    flex-shrink: 0;
+    margin-top: 10px;
   }
-  #scene.dragging { cursor: grabbing; }
   
   #carousel {
     width: 100%;
@@ -103,38 +101,35 @@
   
   .case-wrap {
     position: absolute;
-    width: 170px;
-    height: 220px;
+    width: 150px;
+    height: 190px;
     top: 50%;
     left: 50%;
-    margin: -110px -85px;
+    margin: -95px -75px;
     transform-style: preserve-3d;
-    cursor: pointer;
   }
   
   .case-face {
     position: absolute;
     width: 100%;
     height: 100%;
-    border-radius: 4px;
+    border-radius: 6px;
     backface-visibility: hidden;
     display: flex;
     flex-direction: column;
     overflow: hidden;
-  }
-  
-  .case-front {
-    border: 1px solid rgba(255,255,255,0.15);
     background: #222;
+    border: 1px solid rgba(255,255,255,0.15);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.5);
   }
   
   .case-spine-strip {
-    width: 14px;
+    width: 12px;
     height: 100%;
-    background: rgba(0,0,0,0.3);
+    background: linear-gradient(90deg, rgba(0,0,0,0.4), rgba(0,0,0,0.2));
     border-right: 1px solid rgba(255,255,255,0.1);
     position: absolute;
-    left: 0; top: 0; bottom: 0;
+    left: 0; top: 0;
   }
   
   .case-art-area {
@@ -144,54 +139,46 @@
     justify-content: center;
     background-size: cover;
     background-position: center;
-    position: relative;
-    margin-left: 14px;
+    background-color: #333;
+    margin-left: 12px;
   }
 
   .case-art-placeholder {
-    font-size: 50px;
-    opacity: 0.3;
-  }
-  
-  .case-shine {
-    position: absolute;
-    top: 0; left: 0; right: 0; height: 100%;
-    background: linear-gradient(135deg, rgba(255,255,255,0.15) 0%, transparent 50%, rgba(0,0,0,0.2) 100%);
-    pointer-events: none;
+    font-size: 40px;
+    color: #a855f7;
+    opacity: 0.6;
   }
   
   .case-footer {
-    padding: 10px 10px 10px 24px;
-    background: rgba(20,20,20,0.85);
-    backdrop-filter: blur(5px);
-    border-top: 1px solid rgba(255,255,255,0.05);
+    padding: 8px 8px 8px 20px;
+    background: rgba(15,15,15,0.95);
+    border-top: 1px solid rgba(255,255,255,0.1);
   }
   
-  .case-title { font-size: 12px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .case-artist { font-size: 11px; color: rgba(255,255,255,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 2px; }
+  .case-title { font-size: 11px; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .case-artist { font-size: 10px; color: rgba(255,255,255,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
 
   #open-panel {
     width: 100%;
-    margin-top: 20px;
+    max-width: 360px;
     display: none;
-    gap: 0;
+    margin: 10px 0;
     justify-content: center;
   }
   #open-panel.visible { display: flex; }
   
   .jewel-back {
-    width: 180px;
+    width: 160px;
     background: #181818;
-    border-radius: 4px 0 0 4px;
-    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px 0 0 6px;
+    border: 1px solid rgba(255,255,255,0.1);
     display: flex;
     flex-direction: column;
-    overflow: hidden;
-    height: 210px;
+    height: 180px;
   }
   
   .jewel-back-tracks {
-    padding: 8px;
+    padding: 6px;
     overflow-y: auto;
     flex: 1;
   }
@@ -199,79 +186,73 @@
   .track-row {
     display: flex;
     align-items: center;
-    gap: 6px;
     padding: 6px 4px;
     cursor: pointer;
     border-radius: 4px;
   }
-  .track-row:active { background: rgba(255,255,255,0.05); }
-  .track-num { font-size: 10px; color: rgba(255,255,255,0.3); width: 14px; text-align: right; }
-  .track-name { font-size: 11px; color: rgba(255,255,255,0.6); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
+  .track-num { font-size: 10px; color: rgba(255,255,255,0.4); width: 16px; }
+  .track-name { font-size: 11px; color: rgba(255,255,255,0.7); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; }
   .track-name.active { color: #a855f7; font-weight: 600; }
   
   .jewel-tray {
-    width: 180px;
-    height: 210px;
+    width: 160px;
+    height: 180px;
     background: #111;
-    border: 1px solid rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
     border-left: none;
-    border-radius: 0 4px 4px 0;
+    border-radius: 0 6px 6px 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    position: relative;
   }
   
   .disc {
-    width: 150px;
-    height: 150px;
+    width: 130px;
+    height: 130px;
     border-radius: 50%;
-    background: conic-gradient(from 0deg,#222 0deg,#333 30deg,#1a1a1a 60deg,#2d2d2d 90deg,#141414 120deg,#3a3a3a 150deg,#222 180deg,#333 210deg,#1a1a1a 240deg,#2d2d2d 270deg,#141414 300deg,#3a3a3a 330deg,#222 360deg);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: conic-gradient(from 0deg,#222,#333,#1a1a1a,#2d2d2d,#141414,#3a3a3a,#222);
+    border: 1px solid rgba(255,255,255,0.15);
     display: flex;
     align-items: center;
     justify-content: center;
     animation: spin 3s linear infinite;
     animation-play-state: paused;
-    position: relative;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.6);
   }
   .disc.spinning { animation-play-state: running; }
   @keyframes spin { to { transform: rotate(360deg); } }
   
-  .disc-inner { width: 34px; height: 34px; border-radius: 50%; background: #111; border: 1px solid rgba(255,255,255,0.1); z-index: 2; }
+  .disc-inner { width: 30px; height: 30px; border-radius: 50%; background: #111; border: 1px solid rgba(255,255,255,0.2); z-index: 2; }
   .disc-label-art {
     position: absolute;
-    width: 65px;
-    height: 65px;
+    width: 60px;
+    height: 60px;
     border-radius: 50%;
     background-size: cover;
     background-position: center;
-    opacity: 0.8;
+    opacity: 0.75;
   }
 
   #player-bar {
     width: 100%;
-    padding: 20px 8px;
+    padding: 0 20px;
   }
-  #np-info { text-align: center; margin-bottom: 14px; }
-  #np-title { font-size: 15px; font-weight: 600; color: rgba(255,255,255,0.9); display: block; }
-  #np-artist { font-size: 13px; color: rgba(255,255,255,0.4); display: block; margin-top: 2px; }
+  #np-info { text-align: center; margin-bottom: 10px; }
+  #np-title { font-size: 15px; font-weight: 600; color: #fff; display: block; }
+  #np-artist { font-size: 12px; color: rgba(255,255,255,0.4); display: block; margin-top: 2px; }
   
-  #prog-wrap { height: 4px; background: rgba(255,255,255,0.08); border-radius: 2px; cursor: pointer; margin-bottom: 8px; }
-  #prog-fill { height: 100%; background: #a855f7; border-radius: 2px; width: 0%; }
-  #time-row { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.3); margin-bottom: 16px; }
+  #prog-wrap { height: 5px; background: rgba(255,255,255,0.1); border-radius: 3px; cursor: pointer; margin-bottom: 6px; }
+  #prog-fill { height: 100%; background: #a855f7; border-radius: 3px; width: 0%; }
+  #time-row { display: flex; justify-content: space-between; font-size: 11px; color: rgba(255,255,255,0.4); margin-bottom: 10px; }
   
-  #controls { display: flex; align-items: center; justify-content: center; gap: 20px; }
-  .cbtn { background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; padding: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
-  .cbtn:active { color: #fff; background: rgba(255,255,255,0.05); }
-  .cbtn.primary { color: #fff; background: rgba(255,255,255,0.1); width: 50px; height: 50px; }
-  .cbtn.primary:active { background: rgba(255,255,255,0.2); }
+  #controls { display: flex; align-items: center; justify-content: center; gap: 16px; }
+  .cbtn { background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer; padding: 10px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+  .cbtn.primary { color: #fff; background: #a855f7; width: 52px; height: 52px; box-shadow: 0 4px 10px rgba(168,85,247,0.3); }
   
-  .dot-row { display: flex; gap: 6px; margin-top: 12px; justify-content: center; height: 6px; }
-  .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.15); transition: all 0.25s; }
-  .dot.active { background: #a855f7; width: 16px; border-radius: 3px; }
-  #hint { font-size: 12px; color: rgba(255,255,255,0.2); text-align: center; margin-top: 10px; }
+  .dot-row { display: flex; gap: 6px; margin: 10px 0; justify-content: center; height: 6px; }
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.2); }
+  .dot.active { background: #a855f7; width: 14px; border-radius: 3px; }
+  #hint { font-size: 11px; color: rgba(255,255,255,0.3); text-align: center; margin-bottom: 5px; }
   </style>
 </head>
 
@@ -279,11 +260,11 @@
   <div id="app">
     <div id="upload-container">
       <div class="upload-icon"><i class="ti ti-folder-music"></i></div>
-      <h3>Load your Music Library</h3>
-      <p style="font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 6px; padding: 0 10px;">Select your music folder. The player will automatically group your files into custom 3D CD layouts using their internal tags.</p>
+      <h3>Load Music Directory</h3>
+      <p style="font-size: 13px; color: rgba(255,255,255,0.4); margin-top: 6px; padding: 0 15px;">Choose your music folder. The player will sort files dynamically based on internal metadata tags.</p>
       
       <input type="file" id="folder-input" webkitdirectory directory multiple style="display: none;">
-      <button class="upload-btn" onclick="document.getElementById('folder-input').click()">Choose Music Folder</button>
+      <button class="upload-btn" onclick="document.getElementById('folder-input').click()">Choose Folder</button>
     </div>
 
     <div id="player-interface">
@@ -307,25 +288,25 @@
       <div id="player-bar">
         <div id="np-info">
           <span id="np-title">Swipe Carousel to Select</span>
-          <span id="np-artist">Click CD to Open Drawer</span>
+          <span id="np-artist">Tap Center CD to Open Tray</span>
         </div>
         <div id="prog-wrap"><div id="prog-fill"></div></div>
         <div id="time-row"><span id="t-cur">0:00</span><span id="t-tot">0:00</span></div>
         <div id="controls">
-          <button class="cbtn" id="btn-prev"><i class="ti ti-player-skip-back" style="font-size:20px"></i></button>
-          <button class="cbtn" id="btn-bk"><i class="ti ti-player-track-prev" style="font-size:18px"></i></button>
-          <button class="cbtn primary" id="btn-play"><i class="ti ti-player-play" style="font-size:22px" id="play-icon"></i></button>
-          <button class="cbtn" id="btn-fw"><i class="ti ti-player-track-next" style="font-size:18px"></i></button>
-          <button class="cbtn" id="btn-next"><i class="ti ti-player-skip-forward" style="font-size:20px"></i></button>
+          <button class="cbtn" id="btn-prev"><i class="ti ti-player-skip-back" style="font-size:22px"></i></button>
+          <button class="cbtn" id="btn-bk"><i class="ti ti-player-track-prev" style="font-size:20px"></i></button>
+          <button class="cbtn primary" id="btn-play"><i class="ti ti-player-play" style="font-size:24px" id="play-icon"></i></button>
+          <button class="cbtn" id="btn-fw"><i class="ti ti-player-track-next" style="font-size:20px"></i></button>
+          <button class="cbtn" id="btn-next"><i class="ti ti-player-skip-forward" style="font-size:22px"></i></button>
         </div>
       </div>
-      <div id="hint">Drag to spin • Tap center to open</div>
+      <div id="hint">Swipe to spin • Tap middle disc to open tray</div>
     </div>
   </div>
 
   <script>
   let albums = [];
-  const RADIUS = 210;
+  const RADIUS = 180;
   let angleOffset = 0;
   let targetAngle = 0;
   let currentIdx = 0;
@@ -361,11 +342,14 @@
   const tTot = document.getElementById('t-tot');
   const playIcon = document.getElementById('play-icon');
 
-  // Handle Directory Input
   folderInput.addEventListener('change', async (e) => {
-    const files = Array.from(e.target.files).filter(file => file.type.startsWith('audio/') || file.name.endsWith('.mp3') || file.name.endsWith('.m4a'));
+    const files = Array.from(e.target.files).filter(file => 
+      file.type.startsWith('audio/') || 
+      /\.(mp3|m4a|wav|aac|ogg)$/i.test(file.name)
+    );
+    
     if (files.length === 0) {
-      alert("No audio files discovered inside that directory folder.");
+      alert("No readable audio tracks discovered in that folder selection.");
       return;
     }
 
@@ -376,7 +360,6 @@
     buildCarousel();
   });
 
-  // Group track sorting by Metadata
   async function processAudioFiles(files) {
     const albumMap = {};
 
@@ -398,12 +381,7 @@
             }
 
             if (!albumMap[albName]) {
-              albumMap[albName] = {
-                title: albName,
-                artist: artName,
-                cover: coverUrl,
-                tracks: []
-              };
+              albumMap[albName] = { title: albName, artist: artName, cover: coverUrl, tracks: [] };
             }
 
             albumMap[albName].tracks.push({
@@ -413,8 +391,7 @@
             });
             resolve();
           },
-          onError: function(error) {
-            // Fallback for untagged tracks
+          onError: function() {
             const albName = "Unknown Album";
             if (!albumMap[albName]) {
               albumMap[albName] = { title: albName, artist: "Unknown Artist", cover: "", tracks: [] };
@@ -430,7 +407,6 @@
       });
     }
 
-    // Sort tracks by track numbers
     albums = Object.values(albumMap).map(alb => {
       alb.tracks.sort((a, b) => a.trackNum - b.trackNum);
       return alb;
@@ -438,13 +414,17 @@
   }
 
   function angleForIdx(i) { return (360 / albums.length) * i; }
+  
   function getFrontIdx() {
+    if (albums.length === 0) return 0;
     const norm = (((-angleOffset % 360) + 360) % 360);
     return Math.round(norm / (360 / albums.length)) % albums.length;
   }
 
   function buildCarousel() {
     carousel.innerHTML = '';
+    if(!albums.length) return;
+
     albums.forEach((alb, i) => {
       const wrap = document.createElement('div');
       wrap.className = 'case-wrap';
@@ -452,13 +432,12 @@
 
       const artContent = alb.cover 
         ? `<div class="case-art-area" style="background-image: url('${alb.cover}')"></div>`
-        : `<div class="case-art-area"><div class="case-art-placeholder"><i class="ti ti-music"></i></div></div>`;
+        : `<div class="case-art-area"><div class="case-art-placeholder"><i class="ti ti-disc"></i></div></div>`;
 
       wrap.innerHTML = `
-        <div class="case-face case-front">
+        <div class="case-face">
           <div class="case-spine-strip"></div>
           ${artContent}
-          <div class="case-shine"></div>
           <div class="case-footer">
             <div class="case-title">${alb.title}</div>
             <div class="case-artist">${alb.artist}</div>
@@ -483,7 +462,6 @@
   function renderCarousel(immediate) {
     if(!albums.length) return;
     const wrappers = Array.from(carousel.querySelectorAll('.case-wrap'));
-    const N = albums.length;
     
     wrappers.forEach((el, i) => {
       const totalRotY = angleForIdx(i) - angleOffset;
@@ -492,14 +470,14 @@
       const x = Math.sin(rad) * RADIUS;
 
       const cosVal = Math.cos(rad);
-      const brightness = 0.3 + 0.7 * Math.max(0, cosVal);
+      const brightness = 0.4 + 0.6 * Math.max(0, cosVal);
       const scale = 0.8 + 0.2 * Math.max(0, cosVal);
 
       el.style.transform = `translateX(${x}px) translateZ(${z - RADIUS}px) rotateY(${totalRotY}deg) scale(${scale})`;
       el.style.filter = `brightness(${brightness.toFixed(2)})`;
       el.style.zIndex = Math.round((cosVal + 1) * 50);
-      el.style.transition = (dragging || immediate) ? 'none' : 'transform 0.45s cubic-bezier(0.22,1,0.36,1), filter 0.35s';
-      el.style.pointerEvents = cosVal > 0.2 ? 'auto' : 'none';
+      el.style.transition = (dragging || immediate) ? 'none' : 'transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), filter 0.3s';
+      el.style.pointerEvents = cosVal > 0.1 ? 'auto' : 'none';
     });
 
     const fi = getFrontIdx();
@@ -526,7 +504,7 @@
   function animateTo(target) {
     cancelAnimationFrame(rafId);
     function step() {
-      angleOffset += (target - angleOffset) * 0.18;
+      angleOffset += (target - angleOffset) * 0.2;
       renderCarousel();
       if (Math.abs(target - angleOffset) > 0.1) {
         rafId = requestAnimationFrame(step);
@@ -559,13 +537,7 @@
   function openAlbumDrawer(idx) {
     openedIdx = idx;
     openPanel.classList.add('visible');
-    
-    if (albums[idx].cover) {
-      discArt.style.backgroundImage = `url('${albums[idx].cover}')`;
-    } else {
-      discArt.style.backgroundImage = 'none';
-    }
-    
+    discArt.style.backgroundImage = albums[idx].cover ? `url('${albums[idx].cover}')` : 'none';
     renderTracks();
   }
 
@@ -610,7 +582,7 @@
       disc.classList.add('spinning');
       startProgressTracker();
       renderTracks();
-    });
+    }).catch(e => console.log("Playback error, checking interactives:", e));
   }
 
   function startProgressTracker() {
@@ -624,11 +596,10 @@
     }, 250);
   }
 
-  audio.addEventListener('ended', () => {
-    nextTrack();
-  });
+  audio.addEventListener('ended', () => { nextTrack(); });
 
   function formatTime(secs) {
+    if(isNaN(secs)) return "0:00";
     const m = Math.floor(secs / 60);
     const s = Math.floor(secs % 60);
     return `${m}:${s.toString().padStart(2, '0')}`;
@@ -661,7 +632,7 @@
     if (nextT < albums[openedIdx].tracks.length) {
       playTrack(openedIdx, nextT);
     } else {
-      playTrack(openedIdx, 0); // Loop album
+      playTrack(openedIdx, 0);
     }
   }
 
@@ -686,7 +657,6 @@
     spinTo((getFrontIdx() - 1 + albums.length) % albums.length);
   });
 
-  // Timeline seeking scrubber
   document.getElementById('prog-wrap').addEventListener('click', (e) => {
     if (!audio.duration) return;
     const rect = e.currentTarget.getBoundingClientRect();
@@ -694,15 +664,14 @@
     audio.currentTime = pct * audio.duration;
   });
 
-  // Mobile Drag Handling
   scene.addEventListener('pointerdown', e => {
+    if(!albums.length) return;
     dragging = true;
     dragStartX = e.clientX;
     dragStartAngle = angleOffset;
     lastDragX = e.clientX;
     velocity = 0;
     cancelAnimationFrame(rafId);
-    scene.classList.add('dragging');
     scene.setPointerCapture(e.pointerId);
   });
   scene.addEventListener('pointermove', e => {
@@ -716,10 +685,9 @@
   scene.addEventListener('pointerup', e => {
     if (!dragging) return;
     dragging = false;
-    scene.classList.remove('dragging');
     const stepAngle = 360 / albums.length;
-    if (Math.abs(velocity) > 2) {
-      const fling = angleOffset - velocity * 2.5;
+    if (Math.abs(velocity) > 1) {
+      const fling = angleOffset - velocity * 2;
       animateTo(Math.round(fling / stepAngle) * stepAngle);
     } else {
       animateTo(Math.round(angleOffset / stepAngle) * stepAngle);
