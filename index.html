@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>3D CD Carousel Player</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jsmediatags/3.9.5/jsmediatags.min.js"></script>
+
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: #111; color: #fff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+#app {
+  width: 100%;
+  min-height: 100vh;
+  background: #111;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px 0;
+  position: relative;
+}
+#scene {
+  width: 100%;
+  height: 260px;
+  position: relative;
+  perspective: 900px;
+  cursor: grab;
+  user-select: none;
+  flex-shrink: 0;
+}
+#scene.dragging { cursor: grabbing; }
+#carousel {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  transform-style: preserve-3d;
+}
+.case-wrap {
+  position: absolute;
+  width: 170px;
+  height: 220px;
+  top: 50%;
+  left: 50%;
+  margin: -110px -85px;
+  transform-style: preserve-3d;
+  transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+  cursor: pointer;
+}
+.case-face {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 2px;
+  backface-visibility: hidden;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.case-front {
+  border: 1.5px solid rgba(255,255,255,0.14);
+}
+.case-spine-strip {
+  width: 12px;
+  height: 100%;
+  background: rgba(0,0,0,0.45);
+  border-right: 0.5px solid rgba(255,255,255,0.08);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+}
+.case-art-area {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 72px;
+}
+.case-shine {
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 35%;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06) 0%, transparent 100%);
+  pointer-events: none;
+}
+.case-footer {
+  padding: 7px 10px 7px 16px;
+  background: rgba(0,0,0,0.5);
+  flex-shrink: 0;
+}
+.case-title { font-size: 11px; font-weight: 500; color: rgba(255,255,255,0.9); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.case-artist { font-size: 10px; color: rgba(255,255,255,0.45); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+#open-panel {
+  width: 360px;
+  margin: 22px auto 0;
+  display: none;
+  gap: 0;
+}
+#open-panel.visible { display: flex; }
+.jewel-back {
+  width: 176px;
+  background: #1c1c1e;
+  border-radius: 3px 0 0 3px;
+  border: 1px solid rgba(255,255,255,0.09);
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto; /* Fixed: allows scrolling through long tracklists on mobile */
+  flex-shrink: 0;
+  height: 210px;
+}
+.jewel-back-art {
+  min-height: 60px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 36px;
+  filter: brightness(0.55);
+  padding: 10px 0;
+}
+.jewel-back-tracks {
+  padding: 7px 10px;
+  border-top: 0.5px solid rgba(255,255,255,0.07);
+}
+.track-row {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 0; /* Optimized for mobile tapping targets */
+  cursor: pointer;
+  border-radius: 2px;
+}
+.track-num { font-size: 9px; color: rgba(255,255,255,0.28); width: 12px; text-align: right; }
+.track-name { font-size: 10px; color: rgba(255,255,255,0.5); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; flex: 1; transition: color 0.15s; }
+.track-name.active { color: #7dd3fc; }
+.track-dur { font-size: 9px; color: rgba(255,255,255,0.22); }
+.jewel-tray {
+  width: 184px;
+  height: 210px;
+  background: #141414;
+  border: 1px solid rgba(255,255,255,0.07);
+  border-left: none;
+  border-radius: 0 3px 3px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  flex-shrink: 0;
+}
+.disc {
+  width: 140px;
+  height: 140px;
+  border-radius: 50%;
+  background: conic-gradient(from 0deg,#222 0deg,#2b2b2b 30deg,#1d1d1d 60deg,#262626 90deg,#1a1a1a 120deg,#2d2d2d 150deg,#222 180deg,#2b2b2b 210deg,#1d1d1d 240deg,#262626 270deg,#1a1a1a 300deg,#2d2d2d 330deg,#222 360deg);
+  border: 1px solid rgba(255,255,255,0.07);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: spin 4s linear infinite;
+  animation-play-state: paused;
+  position: relative;
+}
+.disc.spinning { animation-play-state: running; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.disc-inner { width: 30px; height: 30px; border-radius: 50%; background: #141414; border: 1px solid rgba(255,255,255,0.05); }
+.disc-label-em {
+  position: absolute;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+.tray-ridge { position:absolute; bottom:12px; left:50%; transform:translateX(-50%); width:120px; height:2px; background:rgba(255,255,255,0.04); border-radius:1px; }
+
+#player-bar {
+  width: 360px;
+  margin: 16px auto 0;
+}
+#np-info { text-align: center; margin-bottom: 10px; }
+#np-title { font-size: 14px; font-weight: 500; color: rgba(255,255,255,0.88); display: block; }
+#np-artist { font-size: 12px; color: rgba(255,255,255,0.38); display: block; }
+#np-track { font-size: 11px; color: rgba(255,255,255,0.22); display: block; margin-top: 1px; }
+#prog-wrap { height: 6px; background: rgba(255,255,255,0.07); border-radius: 3px; cursor: pointer; margin-bottom: 6px; padding: 1px 0; }
+#prog-fill { height: 100%; background: #7dd3fc; border-radius: 2px; width: 0%; pointer-events: none; }
+#time-row { display: flex; justify-content: space-between; font-size: 10px; color: rgba(255,255,255,0.22); margin-bottom: 12px; }
+#controls { display: flex; align-items: center; justify-content: center; gap: 18px; }
+.cbtn { background: none; border: none; color: rgba(255,255,255,0.45); cursor: pointer; padding: 12px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+.cbtn:hover { color: rgba(255,255,255,0.9); background: rgba(255,255,255,0.07); }
+.cbtn.primary { color: #fff; background: rgba(255,255,255,0.1); width: 50px; height: 50px; }
+.dot-row { display: flex; gap: 5px; margin-top: 12px; justify-content: center; }
+.dot { width: 4px; height: 4px; border-radius: 50%; background: rgba(255,255,255,0.14); transition: background 0.2s, width 0.2s; }
+.dot.active { background: rgba(255,255,255,0.65); width: 12px; border-radius: 2px; }
+
+/* Setup/Upload overlay layout */
+#upload-screen {
+  position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+  background: #111; z-index: 100; display: flex; flex-direction: column;
+  align-items: center; justify-content: center; padding: 20px; text-align: center;
+}
+.file-label {
+  background: #222; border: 1px solid rgba(255,255,255,0.15);
+  padding: 14px 28px; border-radius: 30px; cursor: pointer; font-weight: 500;
+  margin-top: 20px; transition: background 0.2s;
+}
+.file-label:hover { background: #333; }
+#file-input { display: none; }
+</style>
+</head>
+<body>
+
+<div id="app">
+  <div id="upload-screen">
+    <i class="ti ti-folder-music" style="font-size: 56px; color: #7dd3fc"></i>
+    <h2 style="margin-top: 15px; font-size: 20px;">Local iPhone Music Player</h2>
+    <p style="color: rgba(255,255,255,0.4); font-size: 13px; margin-top: 6px; max-width: 280px;">
+      Tap below to pick audio files from your Files app. They will automatically compile into 3D interactive CDs!
+    </p>
+    <label class="file-label" for="file-input">Select Audio Files</label>
+    <input type="file" id="file-input" multiple accept="audio/*">
+  </div>
+
+  <div id="scene">
+    <div id="carousel"></div>
+  </div>
+  <div class="dot-row" id="dots"></div>
+
+  <div id="open-panel">
+    <div class="jewel-back">
+      <div class="jewel-back-art" id="back-art"></div>
+      <div class="jewel-back-tracks" id="track-list"></div>
+    </div>
+    <div class="jewel-tray">
+      <div class="disc" id="disc">
+        <div class="disc-label-em" id="disc-em"></div>
+        <div class="disc-inner"></div>
+      </div>
+      <div class="tray-ridge"></div>
+    </div>
+  </div>
+
+  <div id="player-bar">
+    <div id="np-info">
+      <span id="np-title">drag to flip · click to open</span>
+      <span id="np-artist"></span>
+      <span id="np-track"></span>
+    </div>
+    <div id="prog-wrap"><div id="prog-fill"></div></div>
+    <div id="time-row"><span id="t-cur">0:00</span><span id="t-tot">—</span></div>
+    <div id="controls">
+      <button class="cbtn" id="btn-prev" aria-label="Previous album"><i class="ti ti-skip-back" style="font-size:20px"></i></button>
+      <button class="cbtn" id="btn-bk" aria-label="Previous track"><i class="ti ti-player-track-prev" style="font-size:18px"></i></button>
+      <button class="cbtn primary" id="btn-play" aria-label="Play/Pause"><i class="ti ti-player-play" style="font-size:22px" id="play-icon"></i></button>
+      <button class="cbtn" id="btn-fw" aria-label="Next track"><i class="ti ti-player-track-next" style="font-size:18px"></i></button>
+      <button class="cbtn" id="btn-next" aria-label="Next album"><i class="ti ti-skip-forward" style="font-size:20px"></i></button>
+    </div>
+  </div>
+</div>
+
+<script>
+// Dynamic Local Audio Database Container
+let albums = [];
+let N = 0;
+const RADIUS = 220;
+let angleOffset = 0; 
+let targetAngle = 0;
+let currentIdx = 0;
+let openedIdx = null;
+let activeTrack = 0;
+let isPlaying = false;
+
+// Hardware Native HTML5 Audio Core Engine
+const audioPlayer = new Audio();
+
+// Global DOM Hooks
+const scene = document.getElementById('scene');
+const carousel = document.getElementById('carousel');
+const openPanel = document.getElementById('open-panel');
+const disc = document.getElementById('disc');
+const discEm = document.getElementById('disc-em');
+const backArt = document.getElementById('back-art');
+const trackListEl = document.getElementById('track-list');
+const npTitle = document.getElementById('np-title');
+const npArtist = document.getElementById('np-artist');
+const npTrack = document.getElementById('np-track');
+const progFill = document.getElementById('prog-fill');
+const tCur = document.getElementById('t-cur');
+const tTot = document.getElementById('t-tot');
+const playIcon = document.getElementById('play-icon');
+const dotsEl = document.getElementById('dots');
+const fileInput = document.getElementById('file-input');
+const uploadScreen = document.getElementById('upload-screen');
+
+// Drag Variables
+let dragging = false, dragStartX = 0, dragStartAngle = 0, lastDragX = 0, velocity = 0, rafId = null;
+
+// --- DYNAMIC LOCAL FILE PARSING CONTROLLER ---
+fileInput.addEventListener('change', async (e) => {
+  const files = Array.from(e.target.files);
+  if (files.length === 0) return;
+
+  const albumMap = {};
+  const emojis = ["🌸", "🕊️", "⚡", "🎻", "🌀", "😊", "🔥", "💿", "🎵", "🎸", "🎧", "🌊"];
+
+  for (let file of files) {
+    let albumName = "Unknown Album";
+    let artistName = "Local Artist";
+
+    // Attempt to extract live metadata tags using jsmediatags
+    try {
+      await new Promise((resolve) => {
+        window.jsmediatags.read(file, {
+          onSuccess: function(tag) {
+            if (tag.tags.album) albumName = tag.tags.album;
+            if (tag.tags.artist) artistName = tag.tags.artist;
+            resolve();
+          },
+          onError: function(error) {
+            resolve(); // Fallback gracefully if file lacks internal tags
+          }
+        });
+      });
+    } catch(err) {}
+
+    if (!albumMap[albumName]) {
+      const randomColor = `#${Math.floor(Math.random()*16777215).toString(16).padStart(6, '0')}`;
+      const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+      albumMap[albumName] = {
+        title: albumName,
+        artist: artistName,
+        emoji: randomEmoji,
+        color: randomColor,
+        tracks: [],
+        dur: [],
+        fileReferences: []
+      };
+    }
+
+    // Clean up song title from filename strings
+    let trackName = file.name.replace(/\.[^/.]+$/, "").replace(/^\d+[\s._-]*/, "");
+    albumMap[albumName].tracks.push(trackName);
+    albumMap[albumName].dur.push("--:--");
+    albumMap[albumName].fileReferences.push(file);
+  }
+
+  albums = Object.values(albumMap);
+  N = albums.length;
+
+  if (N > 0) {
+    uploadScreen.style.display = 'none'; // Enter app view
+    buildCarousel();
+  }
+});
+
+function angleForIdx(i) { return (360 / N) * i; }
+
+function buildCarousel() {
+  carousel.innerHTML = '';
+  albums.forEach((alb, i) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'case-wrap';
+    wrap.dataset.idx = i;
+    wrap.innerHTML = `
+      <div class="case-face case-front" style="background:${alb.color}18; display:flex; flex-direction:row;">
+        <div class="case-spine-strip"></div>
+        <div style="flex:1;display:flex;flex-direction:column;position:relative;">
+          <div class="case-art-area">${alb.emoji}</div>
+          <div class="case-shine"></div>
+          <div class="case-footer">
+            <div class="case-title">${alb.title}</div>
+            <div class="case-artist">${alb.artist}</div>
+          </div>
+        </div>
+      </div>`;
+    wrap.addEventListener('click', () => {
+      if (Math.abs(velocity) > 0.5) return;
+      const clickedIdx = parseInt(wrap.dataset.idx);
+      if (clickedIdx === getFrontIdx()) { openAlbum(clickedIdx); } else { spinTo(clickedIdx); }
+    });
+    carousel.appendChild(wrap);
+  });
+  buildDots();
+  renderCarousel();
+}
+
+function getFrontIdx() {
+  const norm = (((-angleOffset % 360) + 360) % 360);
+  return Math.round(norm / (360 / N)) % N;
+}
+
+function renderCarousel(immediate) {
+  if (N === 0) return;
+  const wrappers = Array.from(carousel.querySelectorAll('.case-wrap'));
+  wrappers.forEach((el, i) => {
+    const baseAngle = angleForIdx(i);
+    const totalRotY = baseAngle - angleOffset;
+    const rad = totalRotY * Math.PI / 180;
+    const z = Math.cos(rad) * RADIUS;
+    const x = Math.sin(rad) * RADIUS;
+    const cosVal = Math.cos(rad);
+    const brightness = 0.25 + 0.75 * Math.max(0, cosVal);
+    const scale = 0.75 + 0.25 * Math.max(0, cosVal);
+
+    el.style.transform = `translateX(${x}px) translateZ(${z - RADIUS}px) rotateY(${totalRotY}deg) scale(${scale})`;
+    el.style.filter = `brightness(${brightness.toFixed(2)})`;
+    el.style.zIndex = Math.round((cosVal + 1) * 50);
+    el.style.transition = (dragging || immediate) ? 'none' : 'transform 0.45s cubic-bezier(0.22,1,0.36,1), filter 0.35s';
+    el.style.pointerEvents = cosVal > 0.3 ? 'auto' : 'none';
+  });
+
+  const fi = getFrontIdx();
+  if (fi !== currentIdx) { currentIdx = fi; buildDots(); }
+}
+
+function spinTo(idx) {
+  const stepAngle = 360 / N;
+  const currentNorm = ((angleOffset % 360) + 360) % 360;
+  const targetNorm = ((stepAngle * idx) % 360 + 360) % 360;
+  let delta = targetNorm - currentNorm;
+  if (delta > 180) delta -= 360;
+  if (delta < -180) delta += 360;
+  targetAngle = angleOffset + delta;
+  animateTo(targetAngle);
+}
+
+function animateTo(target) {
+  cancelAnimationFrame(rafId);
+  function step() {
+    angleOffset += (target - angleOffset) * 0.18;
+    renderCarousel();
+    if (Math.abs(target - angleOffset) > 0.1) { rafId = requestAnimationFrame(step); } else { angleOffset = target; renderCarousel(); }
+  }
+  rafId = requestAnimationFrame(step);
+}
+
+function snapToNearest() {
+  const stepAngle = 360 / N;
+  animateTo(Math.round(angleOffset / stepAngle) * stepAngle);
+}
+
+function buildDots() {
+  dotsEl.innerHTML = '';
+  albums.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot' + (i === currentIdx ? ' active' : '');
+    dotsEl.appendChild(d);
+  });
+}
+
+function openAlbum(idx) {
+  openedIdx = idx;
+  activeTrack = 0;
+  const alb = albums[idx];
+  openPanel.classList.add('visible');
+  backArt.textContent = alb.emoji;
+  discEm.textContent = alb.emoji;
+  renderTracks();
+  loadLocalTrack(idx, activeTrack, false);
+}
+
+function renderTracks() {
+  if (openedIdx === null) return;
+  const alb = albums[openedIdx];
+  trackListEl.innerHTML = '';
+  // Fixed: Removed the .slice(0, 5) limitation to support complete local track lists
+  alb.tracks.forEach((t, i) => {
+    const row = document.createElement('div');
+    row.className = 'track-row';
+    row.innerHTML = `<span class="track-num">${i+1}</span><span class="track-name ${i===activeTrack?'active':''}">${t}</span><span class="track-dur" id="dur-${i}">${alb.dur[i]}</span>`;
+    row.addEventListener('click', () => { 
+      activeTrack = i; 
+      renderTracks(); 
+      loadLocalTrack(openedIdx, activeTrack, true); 
+    });
+    trackListEl.appendChild(row);
+  });
+}
+
+// --- HARDWARE AUDIO HOOKS ---
+function loadLocalTrack(albumIdx, trackIdx, triggerPlayback) {
+  const alb = albums[albumIdx];
+  const file = alb.fileReferences[trackIdx];
+
+  // Safely clean up local memory pointers from previous tracks
+  if (audioPlayer.src) { URL.revokeObjectURL(audioPlayer.src); }
+
+  // Point the device's hardware audio decoder directly to your file reference
+  audioPlayer.src = URL.createObjectURL(file);
+  
+  npTitle.textContent = alb.title;
+  npArtist.textContent = alb.artist;
+  npTrack.textContent = alb.tracks[trackIdx];
+  tCur.textContent = '0:00';
+  progFill.style.width = '0%';
+
+  audioPlayer.addEventListener('loadedmetadata', () => {
+    const formattedDuration = fmtTime(audioPlayer.duration);
+    alb.dur[trackIdx] = formattedDuration;
+    tTot.textContent = formattedDuration;
+    const item = document.getElementById(`dur-${trackIdx}`);
+    if (item) item.textContent = formattedDuration;
+  }, { once: true });
+
+  if (triggerPlayback) {
+    audioPlayer.play().catch(() => {});
+    isPlaying = true;
+    playIcon.className = 'ti ti-player-pause';
+    disc.classList.add('spinning');
+  }
+}
+
+// Hardware Time Tracking Sync
+audioPlayer.addEventListener('timeupdate', () => {
+  if (!audioPlayer.duration) return;
+  const currentRatio = audioPlayer.currentTime / audioPlayer.duration;
+  progFill.style.width = (currentRatio * 100) + '%';
+  tCur.textContent = fmtTime(audioPlayer.currentTime);
+});
+
+audioPlayer.addEventListener('ended', () => { nextTrack(); });
+
+function fmtTime(sec) {
+  if (isNaN(sec)) return "--:--";
+  const m = Math.floor(sec / 60), s = Math.floor(sec % 60);
+  return m + ':' + String(s).padStart(2, '0');
+}
+
+function togglePlay() {
+  if (N === 0) return;
+  if (openedIdx === null) { openAlbum(getFrontIdx()); return; }
+
+  if (isPlaying) {
+    audioPlayer.pause();
+    isPlaying = false;
+    playIcon.className = 'ti ti-player-play';
+    disc.classList.remove('spinning');
+  } else {
+    audioPlayer.play().catch(() => {});
+    isPlaying = true;
+    playIcon.className = 'ti ti-player-pause';
+    disc.classList.add('spinning');
+  }
+}
+
+function nextTrack() {
+  if (openedIdx === null) return;
+  activeTrack = (activeTrack + 1) % albums[openedIdx].tracks.length;
+  renderTracks();
+  loadLocalTrack(openedIdx, activeTrack, isPlaying);
+}
+
+function prevTrack() {
+  if (openedIdx === null) return;
+  activeTrack = (activeTrack - 1 + albums[openedIdx].tracks.length) % albums[openedIdx].tracks.length;
+  renderTracks();
+  loadLocalTrack(openedIdx, activeTrack, isPlaying);
+}
+
+// UI Buttons Event Interceptors
+document.getElementById('btn-play').addEventListener('click', togglePlay);
+document.getElementById('btn-fw').addEventListener('click', nextTrack);
+document.getElementById('btn-bk').addEventListener('click', prevTrack);
+document.getElementById('btn-next').addEventListener('click', () => {
+  if (N === 0) return;
+  const ni = (getFrontIdx() + 1) % N;
+  spinTo(ni);
+  if (openedIdx !== null) setTimeout(() => openAlbum(ni), 300);
+});
+document.getElementById('btn-prev').addEventListener('click', () => {
+  if (N === 0) return;
+  const ni = (getFrontIdx() - 1 + N) % N;
+  spinTo(ni);
+  if (openedIdx !== null) setTimeout(() => openAlbum(ni), 300);
+});
+
+document.getElementById('prog-wrap').addEventListener('click', (e) => {
+  if (!audioPlayer.duration) return;
+  const rect = e.currentTarget.getBoundingClientRect();
+  const clickPercent = (e.clientX - rect.left) / rect.width;
+  audioPlayer.currentTime = clickPercent * audioPlayer.duration;
+});
+
+// Touch and Gesture Drag Event Overrides
+scene.addEventListener('pointerdown', e => {
+  if (N === 0) return;
+  dragging = true; dragStartX = e.clientX; dragStartAngle = angleOffset; lastDragX = e.clientX; velocity = 0;
+  cancelAnimationFrame(rafId);
+  scene.classList.add('dragging'); scene.setPointerCapture(e.pointerId);
+});
+scene.addEventListener('pointermove', e => {
+  if (!dragging) return;
+  const dx = e.clientX - lastDragX; velocity = dx; lastDragX = e.clientX;
+  angleOffset = dragStartAngle - (e.clientX - dragStartX) * 0.45;
+  renderCarousel(true);
+});
+scene.addEventListener('pointerup', e => {
+  if (!dragging) return;
+  dragging = false; scene.classList.remove('dragging');
+  if (Math.abs(velocity) > 3) {
+    const stepAngle = 360 / N;
+    animateTo(Math.round((angleOffset - velocity * 2.5) / stepAngle) * stepAngle);
+  } else { snapToNearest(); }
+  velocity = 0;
+});
+</script>
+</body>
+</html>
